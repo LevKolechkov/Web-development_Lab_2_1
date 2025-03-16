@@ -1,0 +1,32 @@
+{
+  "name": "lab_2_1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.ts",
+  "scripts": {
+    "start": "ts-node app.ts",
+    "dev": "nodemon app.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LevKolechkov/Web-development_Lab_2_1.git"
+  },
+  "keywords": [],
+  "author": "Lev Kolechkov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LevKolechkov/Web-development_Lab_2_1/issues"
+  },
+  "homepage": "https://github.com/LevKolechkov/Web-development_Lab_2_1#readme",
+  "dependencies": {
+    "@types/express": "^5.0.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mongoose": "^8.12.2",
+    "typescript": "^5.8.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2"
+  }
+}
