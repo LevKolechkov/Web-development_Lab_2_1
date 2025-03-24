@@ -20,9 +20,11 @@
   "homepage": "https://github.com/LevKolechkov/Web-development_Lab_2_1#readme",
   "dependencies": {
     "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9",
     "bcrypt-ts": "^6.0.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.12.2",
     "typescript": "^5.8.2"
   },

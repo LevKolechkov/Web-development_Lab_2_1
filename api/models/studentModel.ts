@@ -14,4 +14,4 @@ const studentSchema = new Schema<IStudent>({
   password: { type: String, required: true },
 });
 
-const Student = model<IStudent>("Student", studentSchema);
+export const Student = model<IStudent>("Student", studentSchema, "students");

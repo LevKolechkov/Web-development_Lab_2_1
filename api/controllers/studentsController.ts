@@ -1,17 +1,124 @@
-import { Request, Response } from "express";
+import { Request, RequestHandler, Response } from "express";
+import mongoose from "mongoose";
+import { genSaltSync, hashSync } from "bcrypt-ts";
+import { Student } from "../models/studentModel";
 
-export const getStudentsHandler = (req: Request, res: Response) => {
-  res.send("Get students route");
+export const getStudentsHandler: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    console.log("Fetching students from MongoDB...");
+
+    const students = await Student.find({});
+    console.log(`Successfully fetched ${students.length} students`);
+    res.json(students);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching students", error });
+  }
 };
 
-export const getSingleStudentHandler = (req: Request, res: Response) => {
-  res.send("Get student route.");
+export const getSingleStudentHandler: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  const { studentId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(studentId)) {
+    res.status(400).json({ message: "Invalid student ID format" });
+  }
+
+  const student = await Student.findById(studentId);
+
+  if (!student) {
+    console.log(`Student not found with ID: ${studentId}`);
+    res.status(404).json({ message: "Student not found" });
+  }
+
+  res.json(student);
 };
 
-export const postStudentHandler = (req: Request, res: Response) => {
-  res.send("Post student route");
+export const postStudentHandler: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { firstName, lastName, login, password } = req.body;
+
+    if (!firstName || !lastName || !login || !password) {
+      res.status(400).json({
+        message:
+          "All fields (firstName, lastName, login, password) are required",
+      });
+    }
+
+    const existingStudent = await Student.findOne({ login });
+    if (existingStudent) {
+      res.status(409).json({
+        message: "Student with this login already exists",
+      });
+    }
+
+    const hashedPassword = hashSync(password, genSaltSync(10));
+
+    const newStudent = new Student({
+      firstName,
+      lastName,
+      login,
+      password: hashedPassword,
+    });
+
+    const savedStudent = await newStudent.save();
+
+    const studentResponse = {
+      _id: savedStudent._id,
+      firstName: savedStudent.firstName,
+      lastName: savedStudent.lastName,
+      login: savedStudent.login,
+    };
+
+    res.status(201).json(studentResponse);
+  } catch (error) {
+    console.error("Error creating student:", error);
+
+    res.status(500).json({
+      message: "Error creating student",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
 };
 
-export const deleteStudentHandler = (req: Request, res: Response) => {
-  res.send("Delete student route");
+export const deleteStudentHandler: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { studentId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(studentId)) {
+      res.status(400).json({
+        message: "Invalid student ID format",
+      });
+    }
+
+    const deletedStudent = await Student.findByIdAndDelete(studentId);
+
+    if (!deletedStudent) {
+      console.log(`Student not found with ID: ${studentId}`);
+      res.status(404).json({
+        message: "Student not found",
+      });
+    }
+
+    res.status(200).json({
+      message: "Student deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting student:", error);
+
+    res.status(500).json({
+      message: "Error deleting student",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
 };
