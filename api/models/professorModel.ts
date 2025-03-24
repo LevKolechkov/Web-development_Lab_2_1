@@ -1,6 +1,8 @@
 import { Schema, model } from "mongoose";
+import { Document } from "mongoose";
 
-interface IProfessor {
+export interface IProfessor extends Document {
+  _id: string;
   firstName: string;
   lastName: string;
   login: string;

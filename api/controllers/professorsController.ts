@@ -1,7 +1,57 @@
 import { Request, RequestHandler, Response } from "express";
 import mongoose from "mongoose";
-import { genSaltSync, hashSync } from "bcrypt-ts";
+import { genSaltSync, hashSync, compareSync } from "bcrypt-ts";
 import { Professor } from "../models/professorModel";
+import jwt from "jsonwebtoken";
+import generateToken from "../utils/generateJWT";
+import { JWT_SECRET } from "../app";
+
+export const loginProfessorHandler: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { login, password } = req.body;
+
+    const professor = await Professor.findOne({ login });
+
+    if (!professor) {
+      throw new Error("Professor not found");
+    }
+
+    if (!professor) {
+      throw new Error();
+    }
+
+    const isPasswordValid = compareSync(password, professor.password);
+
+    if (!isPasswordValid) {
+      throw new Error("Invalid password");
+    }
+
+    const token = generateToken(professor._id);
+    res.json({ token });
+  } catch (error) {
+    res.status(401).json({ message: "Invalid credentials" });
+  }
+};
+
+export const authorisedProfessorHandler: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) throw new Error();
+
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+
+    res.json({ message: "Welcome, professor!", userId: decoded.userId });
+  } catch (error) {
+    res.status(401).json({ message: "Unauthorized: Invalid token" });
+  }
+};
 
 export const getProfessorsHandler: RequestHandler = async (
   req: Request,
