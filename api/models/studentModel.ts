@@ -1,0 +1,17 @@
+import { Schema, model } from "mongoose";
+
+interface IStudent {
+  firstName: string;
+  lastName: string;
+  login: string;
+  password: string;
+}
+
+const studentSchema = new Schema<IStudent>({
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  login: { type: String, required: true },
+  password: { type: String, required: true },
+});
+
+const Student = model<IStudent>("Student", studentSchema);

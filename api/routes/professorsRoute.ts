@@ -5,7 +5,7 @@ import {
   getSingleProfessorHandler,
   postProfessorHandler,
   deleteProfessorHandler,
-} from "../controllers/professors";
+} from "../controllers/professorsController";
 
 const router = Router();
 

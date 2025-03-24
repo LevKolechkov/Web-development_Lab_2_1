@@ -5,7 +5,7 @@ import {
   getSingleStudentHandler,
   postStudentHandler,
   deleteStudentHandler,
-} from "../controllers/students";
+} from "../controllers/studentsController";
 
 const router = Router();
 

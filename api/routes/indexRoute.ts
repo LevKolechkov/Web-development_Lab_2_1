@@ -1,7 +1,7 @@
 import { Router } from "express";
-import studentsRouter from "./students";
-import professorsRouter from "./professors";
-import rootRouter from "./root";
+import studentsRouter from "./studentsRoute";
+import professorsRouter from "./professorsRoute";
+import rootRouter from "./rootRoute";
 
 const router: Router = Router();
 
