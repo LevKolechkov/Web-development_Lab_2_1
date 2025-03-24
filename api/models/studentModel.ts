@@ -1,6 +1,7 @@
 import { Schema, model } from "mongoose";
 
-interface IStudent {
+interface IStudent extends Document {
+  _id: string;
   firstName: string;
   lastName: string;
   login: string;
