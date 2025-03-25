@@ -16,11 +16,8 @@ export const loginStudentHandler: RequestHandler = async (
     const student = await Student.findOne({ login });
 
     if (!student) {
-      throw new Error("Student not found");
-    }
-
-    if (!student) {
-      throw new Error();
+      res.status(401).json({ message: "Invalid credentials" });
+      return;
     }
 
     const isPasswordValid = compareSync(password, student.password);
@@ -32,7 +29,7 @@ export const loginStudentHandler: RequestHandler = async (
     const token = generateToken(student._id);
     res.json({ token });
   } catch (error) {
-    res.status(401).json({ message: "Invalid credentials" });
+    res.status(401).json({ message: "Invalid credentials", error });
   }
 };
 
@@ -43,13 +40,16 @@ export const authorisedStudentHandler: RequestHandler = async (
   try {
     const token = req.headers.authorization?.split(" ")[1];
 
-    if (!token) throw new Error();
+    if (!token) {
+      res.status(401).json({ message: "Authorization token required" });
+      return;
+    }
 
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
 
     res.json({ message: "Welcome, student!", userId: decoded.userId });
   } catch (error) {
-    res.status(401).json({ message: "Unauthorized: Invalid token" });
+    res.status(401).json({ message: "Unauthorized: Invalid token", error });
   }
 };
 
