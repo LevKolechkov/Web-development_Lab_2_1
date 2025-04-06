@@ -2,6 +2,8 @@ import { Request, RequestHandler, Response } from "express";
 import mongoose from "mongoose";
 import { genSaltSync, hashSync } from "bcrypt-ts";
 import { Student } from "../models/studentModel";
+import { JWT_SECRET } from "../app";
+import jwt from "jsonwebtoken";
 
 export const getStudentsHandler: RequestHandler = async (
   req: Request,
@@ -120,5 +122,25 @@ export const deleteStudentHandler: RequestHandler = async (
       message: "Error deleting student",
       error: error instanceof Error ? error.message : "Unknown error",
     });
+  }
+};
+
+export const authorisedStudentHandler: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const token = req.body;
+
+    if (!token) {
+      res.status(401).json({ message: "Authorization token required" });
+      return;
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
+
+    res.json({ message: "Welcome, student!", userId: decoded.userId });
+  } catch (error) {
+    res.status(401).json({ message: "Unauthorized: Invalid token", error });
   }
 };

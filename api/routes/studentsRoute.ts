@@ -4,6 +4,7 @@ import {
   getSingleStudentHandler,
   postStudentHandler,
   deleteStudentHandler,
+  authorisedStudentHandler,
 } from "../controllers/studentsController";
 import { loginStudentHandler } from "../middlewares/loginStudent";
 
@@ -13,6 +14,6 @@ router.get("/", getStudentsHandler);
 router.post("/", postStudentHandler);
 router.get("/:studentId", getSingleStudentHandler);
 router.delete("/:studentId", deleteStudentHandler);
-router.post("/login", loginStudentHandler);
+router.post("/login", loginStudentHandler, authorisedStudentHandler);
 
 export default router;

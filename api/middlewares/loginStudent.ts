@@ -1,11 +1,12 @@
-import { Request, RequestHandler, Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 import { compareSync } from "bcrypt-ts";
 import generateToken from "../utils/generateJWT";
 import { Student } from "../models/studentModel";
 
 export const loginStudentHandler: RequestHandler = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   const { login, password } = req.body;
 
@@ -26,8 +27,8 @@ export const loginStudentHandler: RequestHandler = async (
 
   try {
     const token = generateToken(student._id, student.role);
-    res.setHeader("Authorization", `Bearer ${token}`);
-    res.status(200).json({ message: "Login successful", token });
+    req.body = token;
+    next();
   } catch (error) {
     console.error("Token generation failed:", error);
     res.status(500).json({ message: "Internal server error", error });
