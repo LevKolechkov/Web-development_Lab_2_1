@@ -58,7 +58,7 @@ export const getStudentsHandler: RequestHandler = async (
   res: Response
 ) => {
   try {
-    console.log("Fetching students from MongoDB...");
+    console.log("Fetching students from database...");
 
     const students = await Student.find({});
     console.log(`Successfully fetched ${students.length} students`);

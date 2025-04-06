@@ -1,67 +1,14 @@
 import { Request, RequestHandler, Response } from "express";
 import mongoose from "mongoose";
-import { genSaltSync, hashSync, compareSync } from "bcrypt-ts";
+import { genSaltSync, hashSync } from "bcrypt-ts";
 import { Professor } from "../models/professorModel";
-import jwt from "jsonwebtoken";
-import generateToken from "../utils/generateJWT";
-import { JWT_SECRET } from "../app";
-
-export const loginProfessorHandler: RequestHandler = async (
-  req: Request,
-  res: Response
-) => {
-  const { login, password } = req.body;
-
-  if (!login || !password) {
-    res.status(400).json({ message: "Login and password are required" });
-  }
-
-  const professor = await Professor.findOne({ login });
-
-  if (!professor) {
-    res.status(401).json({ message: "Invalid credentials" });
-    return;
-  }
-  const isPasswordValid = compareSync(password, professor.password);
-  if (!isPasswordValid) {
-    res.status(401).json({ message: "Invalid credentials" });
-  }
-
-  try {
-    const token = generateToken(professor._id);
-    res.json({ token });
-  } catch (error) {
-    console.error("Token generation failed:", error);
-    res.status(500).json({ message: "Internal server error", error });
-  }
-};
-
-export const authorisedProfessorHandler: RequestHandler = async (
-  req: Request,
-  res: Response
-) => {
-  try {
-    const token = req.headers.authorization?.split(" ")[1];
-
-    if (!token) {
-      res.status(401).json({ message: "Authorization token required" });
-      return;
-    }
-
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
-
-    res.json({ message: "Welcome, professor!", userId: decoded.userId });
-  } catch (error) {
-    res.status(401).json({ message: "Unauthorized: Invalid token", error });
-  }
-};
 
 export const getProfessorsHandler: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
   try {
-    console.log("Fetching professors from MongoDB...");
+    console.log("Fetching professors from database...");
 
     const professors = await Professor.find({});
     console.log(`Successfully fetched ${professors.length} professors`);
