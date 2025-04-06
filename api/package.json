@@ -19,8 +19,6 @@
   },
   "homepage": "https://github.com/LevKolechkov/Web-development_Lab_2_1#readme",
   "dependencies": {
-    "@types/express": "^5.0.1",
-    "@types/jsonwebtoken": "^9.0.9",
     "bcrypt-ts": "^6.0.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
@@ -30,6 +28,8 @@
     "typescript": "^5.8.2"
   },
   "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9",
     "@eslint/js": "^9.23.0",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
