@@ -25,8 +25,7 @@ export const loginProfessorHandler: RequestHandler = async (
   }
 
   try {
-    const token = generateToken(professor._id);
-    res.setHeader("Authorization", `Bearer ${token}`);
+    const token = generateToken(professor._id, professor.role);
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
     console.error("Token generation failed:", error);

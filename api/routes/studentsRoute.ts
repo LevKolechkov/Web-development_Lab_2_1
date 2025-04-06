@@ -1,12 +1,11 @@
 import { Router } from "express";
-
 import {
   getStudentsHandler,
   getSingleStudentHandler,
   postStudentHandler,
   deleteStudentHandler,
-  loginStudentHandler,
 } from "../controllers/studentsController";
+import { loginStudentHandler } from "../middlewares/loginStudent";
 
 const router = Router();
 

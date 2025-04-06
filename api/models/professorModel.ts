@@ -6,6 +6,7 @@ export interface IProfessor extends Document {
   lastName: string;
   login: string;
   password: string;
+  role: string;
 }
 
 const professorSchema = new Schema<IProfessor>({
@@ -13,6 +14,7 @@ const professorSchema = new Schema<IProfessor>({
   lastName: { type: String, required: true },
   login: { type: String, required: true },
   password: { type: String, required: true },
+  role: { type: String, required: true },
 });
 
 export const Professor = model<IProfessor>(

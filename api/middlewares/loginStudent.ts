@@ -25,7 +25,7 @@ export const loginStudentHandler: RequestHandler = async (
   }
 
   try {
-    const token = generateToken(student._id);
+    const token = generateToken(student._id, student.role);
     res.setHeader("Authorization", `Bearer ${token}`);
     res.status(200).json({ message: "Login successful", token });
   } catch (error) {
