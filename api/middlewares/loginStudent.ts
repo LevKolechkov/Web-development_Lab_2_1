@@ -27,7 +27,8 @@ export const loginStudentHandler: RequestHandler = async (
 
   try {
     const token = generateToken(student._id, student.role);
-    req.body = token;
+    console.log(`[server] Generated token: ${token}`);
+    req.body.token = token;
     next();
   } catch (error) {
     console.error("Token generation failed:", error);

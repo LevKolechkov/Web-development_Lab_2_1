@@ -27,7 +27,8 @@ export const loginProfessorHandler: RequestHandler = async (
 
   try {
     const token = generateToken(professor._id, professor.role);
-    req.body = token;
+    console.log(`[server] Generated token: ${token}`);
+    req.body.token = token;
     next();
   } catch (error) {
     console.error("Token generation failed:", error);
