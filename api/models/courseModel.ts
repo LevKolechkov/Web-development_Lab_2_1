@@ -7,7 +7,7 @@ export interface ICourse extends Document {
   slug: string;
   description: string;
   price: string;
-  // image: string;
+  image: string;
   category: string;
   level: string;
   published: boolean;
@@ -21,7 +21,11 @@ const courseSchema = new Schema<ICourse>({
   slug: { type: String },
   description: { type: String },
   price: { type: String, required: true },
-  // image: { type: String, required: true },
+  image: {
+    type: String,
+    required: true,
+    default: "/uploads/courseDefaultImage.jpeg",
+  },
   category: { type: String, required: true },
   level: { type: String, required: true, default: "beginner" },
   published: { type: Boolean, required: true, default: false },

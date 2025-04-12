@@ -1,6 +1,7 @@
 import { Request, RequestHandler, Response } from "express";
 import { Course } from "../models/courseModel";
 import slugify from "slugify";
+import path from "path";
 
 export const getCoursesHandler: RequestHandler = async (
   req: Request,
@@ -17,7 +18,7 @@ export const getCoursesHandler: RequestHandler = async (
   }
 };
 
-export const getCourseHandler: RequestHandler = async (
+export const getCourseByIDHandler: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
@@ -27,7 +28,7 @@ export const getCourseHandler: RequestHandler = async (
 
   if (!course) {
     console.log(`Course not found with ID: ${courseId}`);
-    res.status(404).json({ message: "Course not" });
+    res.status(404).json({ message: "Course not found" });
   }
 
   res.json(course);
@@ -52,12 +53,16 @@ export const postCourseHandler: RequestHandler = async (
       });
     }
 
+    const imagePath = req.file
+      ? path.join(req.file.destination, req.file.filename)
+      : "assets/uploads/courseDefaultImage";
+
     const newCourse = new Course({
       title: courseData.title,
-      slug: slugify(courseData.title),
+      slug: slugify(courseData.title, { lower: true }),
       description: courseData.description,
       price: courseData.price,
-      // image: courseData.image,
+      image: imagePath,
       category: courseData.category,
       level: courseData.level,
       published: courseData.published,
@@ -82,6 +87,19 @@ export const postCourseHandler: RequestHandler = async (
     });
   }
 };
+
+// Проверка req.file
+// export const postCourseHandler: RequestHandler = async (
+//   req: Request,
+//   res: Response
+// ) => {
+//   const formData = req.body;
+//   res.json({
+//     file_info: req.file,
+//     form_data: formData,
+//     status: "Success",
+//   });
+// };
 
 export const deleteCourseHandler: RequestHandler = async (
   req: Request,
