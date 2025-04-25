@@ -109,19 +109,6 @@ export const postCourseHandler: RequestHandler = async (
   }
 };
 
-// Проверка req.file
-// export const postCourseHandler: RequestHandler = async (
-//   req: Request,
-//   res: Response
-// ) => {
-//   const formData = req.body;
-//   res.json({
-//     file_info: req.file,
-//     form_data: formData,
-//     status: "Success",
-//   });
-// };
-
 export const deleteCourseHandler: RequestHandler = async (
   req: Request,
   res: Response

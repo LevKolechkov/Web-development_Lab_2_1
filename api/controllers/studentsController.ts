@@ -144,3 +144,41 @@ export const authorisedStudentHandler: RequestHandler = async (
     res.status(401).json({ message: "Unauthorized: Invalid token", error });
   }
 };
+
+export const toggleFavoriteCourse: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  const { studentId, courseId } = req.params;
+
+  try {
+    const student = await Student.findById(studentId);
+
+    if (!student) {
+      res.status(404).json({ message: "Student not found" });
+      return;
+    }
+
+    const alreadyFavorite = student.favoriteCourses.includes(courseId);
+
+    if (alreadyFavorite) {
+      student.favoriteCourses = student.favoriteCourses.filter(
+        (id) => id !== courseId
+      );
+    } else {
+      student.favoriteCourses.push(courseId);
+    }
+
+    await student.save();
+    res.status(200).json({
+      message: "Successfully toggled favorite course",
+    });
+  } catch (error) {
+    console.error("Error toggling favorite course:", error);
+
+    res.status(500).json({
+      message: "Error toggling favorite course:",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
