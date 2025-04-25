@@ -2,6 +2,7 @@ import { Request, RequestHandler, Response } from "express";
 import { Course } from "../models/courseModel";
 import slugify from "slugify";
 import path from "path";
+import sharp from "sharp";
 
 export const getCoursesHandler: RequestHandler = async (
   req: Request,
@@ -39,13 +40,15 @@ export const postCourseHandler: RequestHandler = async (
   res: Response
 ) => {
   try {
-    //const {title, slug, description, price, image, category, level, published, author, createdAt} = req.body
-
     const { ...courseData } = req.body;
 
     const missingField = Object.keys(courseData).find(
       (key) => !courseData[key]
     );
+
+    const watermarkBuffer = await sharp("assets/uploads/watermark.png")
+      .resize(100)
+      .toBuffer();
 
     if (missingField) {
       res.status(400).json({
@@ -56,6 +59,23 @@ export const postCourseHandler: RequestHandler = async (
     const imagePath = req.file
       ? path.join(req.file.destination, req.file.filename)
       : "assets/uploads/courseDefaultImage";
+
+    if (req.file) {
+      const watermarkedPath = path.join(
+        req.file.destination,
+        "watermarked-" + req.file.filename
+      );
+
+      await sharp(imagePath)
+        .composite([
+          {
+            input: watermarkBuffer,
+            gravity: "southeast",
+            blend: "overlay",
+          },
+        ])
+        .toFile(watermarkedPath);
+    }
 
     const newCourse = new Course({
       title: courseData.title,
