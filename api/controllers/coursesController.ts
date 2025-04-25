@@ -74,6 +74,7 @@ export const postCourseHandler: RequestHandler = async (
             blend: "overlay",
           },
         ])
+        .jpeg({ quality: 70 })
         .toFile(watermarkedPath);
     }
 
