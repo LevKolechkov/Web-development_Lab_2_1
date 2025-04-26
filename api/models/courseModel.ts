@@ -13,6 +13,7 @@ export interface ICourse extends Document {
   published: boolean;
   author: string;
   createdAt: string;
+  tags: string[];
 }
 
 const courseSchema = new Schema<ICourse>({
@@ -34,6 +35,7 @@ const courseSchema = new Schema<ICourse>({
     type: String,
     default: () => new Date().toISOString(),
   },
+  tags: [{ type: String, ref: "Tag" }],
 });
 
 export const Course = model<ICourse>("Course", courseSchema, "courses");
