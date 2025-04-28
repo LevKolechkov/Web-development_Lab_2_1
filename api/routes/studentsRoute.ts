@@ -15,7 +15,7 @@ router.get("/", getStudentsHandler);
 router.post("/", postStudentHandler);
 router.get("/:studentId", getSingleStudentHandler);
 router.delete("/:studentId", deleteStudentHandler);
-router.put("/:studentId/favorites/:courseId", toggleFavoriteCourse);
+router.put("/:studentId/favorites/", toggleFavoriteCourse);
 router.post("/login", loginStudentHandler, authorisedStudentHandler);
 
 export default router;

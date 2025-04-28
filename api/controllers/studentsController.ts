@@ -149,7 +149,8 @@ export const toggleFavoriteCourse: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
-  const { studentId, courseId } = req.params;
+  const { studentId } = req.params;
+  const courseId = req.body.courseId;
 
   try {
     const student = await Student.findById(studentId);
