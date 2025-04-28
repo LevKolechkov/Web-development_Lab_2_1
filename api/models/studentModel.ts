@@ -1,12 +1,7 @@
 import { Schema, model } from "mongoose";
+import { IUser } from "../interfaces/IUser";
 
-interface IStudent extends Document {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  login: string;
-  password: string;
-  role: string;
+export interface IStudent extends IUser {
   favoriteCourses: string[];
 }
 
