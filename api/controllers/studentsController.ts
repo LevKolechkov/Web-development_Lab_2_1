@@ -103,6 +103,7 @@ export const deleteStudentHandler: RequestHandler = async (
       res.status(400).json({
         message: "Invalid student ID format",
       });
+      return;
     }
 
     const deletedStudent = await Student.findByIdAndDelete(studentId);
@@ -132,7 +133,7 @@ export const authorisedStudentHandler: RequestHandler = async (
   res: Response
 ) => {
   try {
-    const token = req.body;
+    const token = req.body.token;
 
     if (!token) {
       res.status(401).json({ message: "Authorization token required" });

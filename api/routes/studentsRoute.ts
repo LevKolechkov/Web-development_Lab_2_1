@@ -7,7 +7,7 @@ import {
   authorisedStudentHandler,
   toggleFavoriteCourse,
 } from "../controllers/studentsController";
-import { loginStudentHandler } from "../middlewares/loginStudent";
+import { loginStudentHandler } from "../middlewares/loginUser";
 
 const router = Router();
 

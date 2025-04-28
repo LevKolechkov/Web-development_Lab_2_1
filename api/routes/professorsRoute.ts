@@ -6,7 +6,7 @@ import {
   deleteProfessorHandler,
   authorisedProfessorHandler,
 } from "../controllers/professorsController";
-import { loginProfessorHandler } from "../middlewares/loginProfessor";
+import { loginProfessorHandler } from "../middlewares/loginUser";
 
 const router = Router();
 
