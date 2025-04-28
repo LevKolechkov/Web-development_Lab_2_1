@@ -15,6 +15,6 @@ router.post("/", upload.single("image"), postCourseHandler);
 router.post("/tags", postTagHandler);
 router.get("/:courseId", getCourseByIDHandler);
 router.delete("/:courseId", deleteCourseHandler);
-router.put("/:courseId/tags", putTagHandler);
+router.patch("/:courseId/tags", putTagHandler);
 
 export default router;
