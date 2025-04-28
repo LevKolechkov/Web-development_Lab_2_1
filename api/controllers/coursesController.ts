@@ -3,6 +3,7 @@ import { Course } from "../models/courseModel";
 import slugify from "slugify";
 import path from "path";
 import sharp from "sharp";
+import { ICourse } from "../models/courseModel";
 
 type Filters = {
   category?: string;
@@ -205,6 +206,35 @@ export const deleteCourseHandler: RequestHandler = async (
 
     res.status(500).json({
       message: "Error creating course",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
+
+export const updateCourseHandler: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { courseId } = req.params;
+    const updatedData: Partial<ICourse> = req.body;
+
+    const course = await Course.findById(courseId);
+
+    if (!course) {
+      res.status(404).json({ message: "Course not found" });
+      return;
+    }
+
+    course.set(updatedData);
+
+    await course.save();
+
+    res.status(200).json(course);
+  } catch (error) {
+    console.error("Error updating course:", error);
+    res.status(500).json({
+      message: "Error updating course",
       error: error instanceof Error ? error.message : "Unknown error",
     });
   }
