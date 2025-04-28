@@ -1,9 +1,10 @@
 import { Request, RequestHandler, Response } from "express";
 import mongoose from "mongoose";
 import { genSaltSync, hashSync } from "bcrypt-ts";
-import { Professor } from "../models/professorModel";
+import { IProfessor, Professor } from "../models/professorModel";
 import { JWT_SECRET } from "../app";
 import jwt from "jsonwebtoken";
+import { extractUserData } from "../utils/extractUserData";
 
 export const getProfessorsHandler: RequestHandler = async (
   req: Request,
@@ -45,14 +46,14 @@ export const postProfessorHandler: RequestHandler = async (
   res: Response
 ) => {
   try {
-    const { firstName, lastName, login, password } = req.body;
+    const { isValid, data, message } = extractUserData(req.body as IProfessor);
 
-    if (!firstName || !lastName || !login || !password) {
-      res.status(400).json({
-        message:
-          "All fields (firstName, lastName, login, password) are required",
-      });
+    if (!isValid || !data) {
+      res.status(400).json({ message });
+      return;
     }
+
+    const { firstName, lastName, login, password } = data;
 
     const existingProfessor = await Professor.findOne({ login });
     if (existingProfessor) {

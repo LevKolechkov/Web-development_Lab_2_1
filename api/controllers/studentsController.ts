@@ -1,9 +1,10 @@
 import { Request, RequestHandler, Response } from "express";
 import mongoose from "mongoose";
 import { genSaltSync, hashSync } from "bcrypt-ts";
-import { Student } from "../models/studentModel";
+import { IStudent, Student } from "../models/studentModel";
 import { JWT_SECRET } from "../app";
 import jwt from "jsonwebtoken";
+import { extractUserData } from "../utils/extractUserData";
 
 export const getStudentsHandler: RequestHandler = async (
   req: Request,
@@ -45,14 +46,14 @@ export const postStudentHandler: RequestHandler = async (
   res: Response
 ) => {
   try {
-    const { firstName, lastName, login, password } = req.body;
+    const { isValid, data, message } = extractUserData(req.body as IStudent);
 
-    if (!firstName || !lastName || !login || !password) {
-      res.status(400).json({
-        message:
-          "All fields (firstName, lastName, login, password) are required",
-      });
+    if (!isValid || !data) {
+      res.status(400).json({ message });
+      return;
     }
+
+    const { firstName, lastName, login, password, role } = data;
 
     const existingStudent = await Student.findOne({ login });
     if (existingStudent) {
@@ -68,6 +69,7 @@ export const postStudentHandler: RequestHandler = async (
       lastName,
       login,
       password: hashedPassword,
+      role: role,
     });
 
     const savedStudent = await newStudent.save();
