@@ -8,6 +8,7 @@ import {
 } from "../controllers/coursesController";
 import upload from "../utils/upload";
 import { postTagHandler, putTagHandler } from "../controllers/tagController";
+import lessonsRouter from "./lessonsRoute";
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.get("/:courseId", getCourseByIDHandler);
 router.delete("/:courseId", deleteCourseHandler);
 router.patch("/:courseId/tags", putTagHandler);
 router.patch("/:courseId", updateCourseHandler);
+router.use("/:courseId/lessons", lessonsRouter);
 
 export default router;
