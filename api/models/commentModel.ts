@@ -1,15 +1,15 @@
 import { Schema, model, Document } from "mongoose";
 import { ILesson } from "./lessonModel";
-import { IUser } from "../interfaces/IUser";
+import { IStudent } from "./studentModel";
 
 export interface IComment extends Document {
-  user: IUser["_id"];
+  student: IStudent["_id"];
   lesson: ILesson["_id"];
   text: string;
 }
 
 const commentSchema = new Schema<IComment>({
-  user: { type: String, required: true, ref: "User" },
+  student: { type: String, required: true, ref: "Student" },
   lesson: { type: String, required: true, ref: "Lesson" },
   text: { type: String, required: true, maxlength: 255 },
 });
