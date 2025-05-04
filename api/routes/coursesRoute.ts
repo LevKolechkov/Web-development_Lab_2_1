@@ -12,10 +12,12 @@ import { postTagHandler, putTagHandler } from "../controllers/tagController";
 import lessonsRouter from "./lessonsRoute";
 import progressRouter from "./progressRoute";
 import { extractCourseId } from "../middlewares/extractCourseId";
+import { sortCourses } from "../middlewares/get-courses/sortCourses";
+import { paginateCourses } from "../middlewares/get-courses/paginateCourses";
 
 const router = Router();
 
-router.get("/", getCoursesHandler);
+router.get("/", sortCourses, paginateCourses, getCoursesHandler);
 router.post("/", upload.single("image"), postCourseHandler);
 router.post("/tags", postTagHandler);
 router.get("/:courseId", getCourseByIDHandler);

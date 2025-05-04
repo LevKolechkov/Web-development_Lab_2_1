@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 import { Document } from "mongoose";
-import { ICourse } from "../models/courseModel";
+import { ICourse } from "../interfaces/ICourse";
 import { v4 as uuidv4 } from "uuid";
 
 export interface ILesson extends Document {

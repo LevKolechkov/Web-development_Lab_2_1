@@ -5,13 +5,6 @@ import path from "path";
 import sharp from "sharp";
 import { ICourse } from "../interfaces/ICourse";
 
-type Filters = {
-  category?: string;
-  level?: string;
-  price?: { $gte?: string; $lte?: string };
-  title?: string | { $regex: RegExp };
-};
-
 export const getCoursesHandler: RequestHandler = async (
   req: Request,
   res: Response
@@ -19,67 +12,10 @@ export const getCoursesHandler: RequestHandler = async (
   try {
     console.log("Fetching courses from database...");
 
-    const {
-      sortBy = "createdAt",
-      order = "desc",
-      page = 1,
-      limit = 10,
-      category,
-      level,
-      price,
-      title,
-    } = req.query;
-    // Sorting
+    const { sortOrder, skip, pageSize, filters } = req.body;
 
-    const validSortFields = ["createdAt", "price", "title"];
-    const validOrder = ["asc", "desc"];
+    const { sortBy = "createdAt" } = req.query;
 
-    if (!validSortFields.includes(sortBy as string)) {
-      res.status(400).json({ message: "Invalid sort field" });
-      return;
-    }
-
-    if (!validOrder.includes(order as string)) {
-      res.status(400).json({ message: "Invalid order direction" });
-      return;
-    }
-
-    const sortOrder = order === "asc" ? 1 : -1;
-
-    // Pagination
-    const pageNumber = parseInt(String(page), 10);
-    const pageSize = parseInt(String(limit), 10);
-    const skip = (pageNumber - 1) * pageSize;
-
-    // Filtration
-    const filters: Filters = {};
-
-    if (category) {
-      filters.category = String(category);
-    }
-
-    if (level) {
-      filters.level = String(level);
-    }
-
-    if (price && typeof price === "string") {
-      if (typeof price === "string") {
-        const [minPrice, maxPrice] = price.split("-");
-        if (minPrice && maxPrice) {
-          filters.price = { $gte: minPrice, $lte: maxPrice };
-        } else if (minPrice) {
-          filters.price = { $gte: minPrice };
-        } else if (maxPrice) {
-          filters.price = { $lte: maxPrice };
-        }
-      }
-    }
-
-    if (title && typeof title === "string") {
-      filters.title = { $regex: new RegExp(title, "i") };
-    }
-
-    // Final request
     const courses = await Course.find(filters)
       .sort({ [String(sortBy)]: sortOrder })
       .skip(skip)

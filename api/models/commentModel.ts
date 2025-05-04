@@ -1,6 +1,6 @@
 import { Schema, model, Document } from "mongoose";
 import { ILesson } from "./lessonModel";
-import { IStudent } from "./studentModel";
+import { IStudent } from "../interfaces/IStudent";
 
 export interface IComment extends Document {
   student: IStudent["_id"];
