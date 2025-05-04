@@ -140,7 +140,7 @@ export const countStudentsInCourse: RequestHandler = async (
   }
 };
 
-export const cancelCourseProgressHandler: RequestHandler = async (
+export const deleteCourseProgressHandler: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
