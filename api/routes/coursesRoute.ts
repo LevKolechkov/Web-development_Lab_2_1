@@ -9,13 +9,8 @@ import {
 import upload from "../utils/upload";
 import { postTagHandler, putTagHandler } from "../controllers/tagController";
 import lessonsRouter from "./lessonsRoute";
-import {
-  deleteCourseProgressHandler,
-  countStudentsInCourse,
-  getProgressHandler,
-  postProgressHandler,
-  updateProgressHandler,
-} from "../controllers/progressController";
+import progressRouter from "./progressRoute";
+import { extractCourseId } from "../middlewares/extractCourseId";
 
 const router = Router();
 
@@ -29,11 +24,6 @@ router.patch("/:courseId", updateCourseHandler);
 
 router.use("/:courseId/lessons", lessonsRouter);
 
-router.get("/:courseId/progress", getProgressHandler);
-router.post("/:courseId/progress", postProgressHandler);
-router.patch("/:courseId/progress", updateProgressHandler);
-router.delete("/courseId/progress", deleteCourseProgressHandler);
-
-router.get("/:courseId/students/count", countStudentsInCourse);
+router.use("/:courseId/progress", extractCourseId, progressRouter);
 
 export default router;

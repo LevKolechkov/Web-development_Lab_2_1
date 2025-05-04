@@ -9,8 +9,7 @@ export const getProgressHandler: RequestHandler = async (
   res: Response
 ) => {
   try {
-    const { courseId } = req.params;
-    const { studentId } = req.body;
+    const { studentId, courseId } = req.body;
 
     const progress = await Progress.findOne({ studentId, courseId });
 
@@ -39,8 +38,7 @@ export const postProgressHandler: RequestHandler = async (
   res: Response
 ) => {
   try {
-    const { courseId } = req.params;
-    const { studentId } = req.body;
+    const { studentId, courseId } = req.body;
 
     checkCourse(res, courseId);
     checkStudent(res, studentId);
@@ -77,8 +75,7 @@ export const updateProgressHandler: RequestHandler = async (
   res: Response
 ) => {
   try {
-    const { courseId } = req.params;
-    const { studentId, lessonId } = req.body;
+    const { studentId, lessonId, courseId } = req.body;
 
     checkCourse(res, courseId);
     checkStudent(res, studentId);
@@ -122,7 +119,7 @@ export const countStudentsInCourse: RequestHandler = async (
   res: Response
 ) => {
   try {
-    const { courseId } = req.params;
+    const { courseId } = req.body;
 
     checkCourse(res, courseId);
 
@@ -145,8 +142,7 @@ export const deleteCourseProgressHandler: RequestHandler = async (
   res: Response
 ) => {
   try {
-    const { courseId } = req.params;
-    const { studentId } = req.body;
+    const { studentId, courseId } = req.body;
 
     checkCourse(res, courseId);
     checkStudent(res, studentId);
