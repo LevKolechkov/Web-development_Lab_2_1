@@ -119,7 +119,7 @@ export const countStudentsInCourse: RequestHandler = async (
   res: Response
 ) => {
   try {
-    const { courseId } = req.body;
+    const { courseId } = req.params;
 
     checkCourse(res, courseId);
 
@@ -163,6 +163,54 @@ export const deleteCourseProgressHandler: RequestHandler = async (
     console.error("Error canceling course progress:", error);
     res.status(500).json({
       message: "Error canceling course progress",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
+
+export const cancelLessonHandler: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { studentId, lessonId, courseId } = req.body;
+
+    const progress = await Progress.findOne({ studentId, courseId });
+
+    if (!progress) {
+      res.status(404).json({
+        message: "Progress not found for this student and course",
+      });
+      return;
+    }
+
+    const lessonIndex = progress.completedLessons.indexOf(lessonId);
+
+    if (lessonIndex === -1) {
+      res.status(400).json({ message: "Lesson has not been completed yet" });
+      return;
+    }
+
+    progress.completedLessons = progress.completedLessons.filter(
+      (id) => id !== lessonId
+    );
+
+    const totalLessons = await Lesson.countDocuments({ course: courseId });
+    const completedLessons = progress.completedLessons.length;
+    const progressPercent =
+      Math.round((completedLessons / totalLessons) * 100 * 100) / 100;
+
+    progress.progressPercent = progressPercent;
+
+    const updatedProgress = await progress.save();
+
+    res.status(200).json(updatedProgress);
+
+    res.status(200).json("Lesson progress canceled successfully");
+  } catch (error) {
+    console.error("Error removing lesson from progress:", error);
+    res.status(500).json({
+      message: "Error removing lesson from progress",
       error: error instanceof Error ? error.message : "Unknown error",
     });
   }

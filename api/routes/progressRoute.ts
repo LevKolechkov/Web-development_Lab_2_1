@@ -1,10 +1,10 @@
 import { Router } from "express";
 import {
   deleteCourseProgressHandler,
-  countStudentsInCourse,
   getProgressHandler,
   postProgressHandler,
   updateProgressHandler,
+  cancelLessonHandler,
 } from "../controllers/progressController";
 
 const router = Router();
@@ -13,6 +13,6 @@ router.get("/", getProgressHandler);
 router.post("/", postProgressHandler);
 router.patch("/", updateProgressHandler);
 router.delete("/", deleteCourseProgressHandler);
-router.delete("/students/count", countStudentsInCourse);
+router.patch("/cancel-lesson", cancelLessonHandler);
 
 export default router;

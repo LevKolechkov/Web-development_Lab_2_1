@@ -6,6 +6,7 @@ import {
   deleteCourseHandler,
   updateCourseHandler,
 } from "../controllers/coursesController";
+import { countStudentsInCourse } from "../controllers/progressController";
 import upload from "../utils/upload";
 import { postTagHandler, putTagHandler } from "../controllers/tagController";
 import lessonsRouter from "./lessonsRoute";
@@ -24,6 +25,7 @@ router.patch("/:courseId", updateCourseHandler);
 
 router.use("/:courseId/lessons", lessonsRouter);
 
+router.get("/:courseId/students/count", countStudentsInCourse);
 router.use("/:courseId/progress", extractCourseId, progressRouter);
 
 export default router;
