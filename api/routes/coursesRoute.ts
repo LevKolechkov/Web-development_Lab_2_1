@@ -10,6 +10,7 @@ import upload from "../utils/upload";
 import { postTagHandler, putTagHandler } from "../controllers/tagController";
 import lessonsRouter from "./lessonsRoute";
 import {
+  countStudentsInCourse,
   getProgressHandler,
   postProgressHandler,
   updateProgressHandler,
@@ -30,5 +31,7 @@ router.use("/:courseId/lessons", lessonsRouter);
 router.get("/:courseId/progress", getProgressHandler);
 router.post("/:courseId/progress", postProgressHandler);
 router.patch("/:courseId/progress", updateProgressHandler);
+
+router.get("/:courseId/students/count", countStudentsInCourse);
 
 export default router;

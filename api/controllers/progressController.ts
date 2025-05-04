@@ -116,3 +116,26 @@ export const updateProgressHandler: RequestHandler = async (
     });
   }
 };
+
+export const countStudentsInCourse: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { courseId } = req.params;
+
+    checkCourse(res, courseId);
+
+    const studentsCount = await Progress.distinct("studentId", {
+      courseId,
+    }).countDocuments();
+
+    res.status(200).json({ studentsCount });
+  } catch (error) {
+    console.error("Error counting students in course:", error);
+    res.status(500).json({
+      message: "Error counting students in course",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};
