@@ -1,7 +1,8 @@
 import { Request, RequestHandler, Response } from "express";
 import mongoose from "mongoose";
 import { genSaltSync, hashSync } from "bcrypt-ts";
-import { IStudent, Student } from "../models/studentModel";
+import { Student } from "../models/studentModel";
+import { IStudent } from "../interfaces/IStudent";
 import { JWT_SECRET } from "../app";
 import jwt from "jsonwebtoken";
 import { extractUserData } from "../utils/extractUserData";
@@ -34,8 +35,8 @@ export const getSingleStudentHandler: RequestHandler = async (
   const student = await Student.findById(studentId);
 
   if (!student) {
-    console.log(`Student not found with ID: ${studentId}`);
     res.status(404).json({ message: "Student not found" });
+    return;
   }
 
   res.json(student);
@@ -109,10 +110,10 @@ export const deleteStudentHandler: RequestHandler = async (
     const deletedStudent = await Student.findByIdAndDelete(studentId);
 
     if (!deletedStudent) {
-      console.log(`Student not found with ID: ${studentId}`);
       res.status(404).json({
         message: "Student not found",
       });
+      return;
     }
 
     res.status(200).json({

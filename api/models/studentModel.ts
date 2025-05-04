@@ -1,9 +1,5 @@
 import { Schema, model } from "mongoose";
-import { IUser } from "../interfaces/IUser";
-
-export interface IStudent extends IUser {
-  favoriteCourses: string[];
-}
+import { IStudent } from "../interfaces/IStudent";
 
 const studentSchema = new Schema<IStudent>({
   firstName: { type: String, required: true },

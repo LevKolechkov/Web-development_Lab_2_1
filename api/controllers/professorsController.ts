@@ -34,8 +34,8 @@ export const getSingleProfessorHandler: RequestHandler = async (
   const professor = await Professor.findById(professorId);
 
   if (!professor) {
-    console.log(`Professor not found with ID: ${professorId}`);
     res.status(404).json({ message: "Professor not found" });
+    return;
   }
 
   res.json(professor);
@@ -107,10 +107,10 @@ export const deleteProfessorHandler: RequestHandler = async (
     const deletedProfessor = await Professor.findByIdAndDelete(professorId);
 
     if (!deletedProfessor) {
-      console.log(`Professor not found with ID: ${professorId}`);
       res.status(404).json({
         message: "Professor not found",
       });
+      return;
     }
 
     res.status(200).json({

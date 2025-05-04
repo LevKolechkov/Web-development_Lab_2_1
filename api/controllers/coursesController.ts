@@ -3,7 +3,7 @@ import { Course } from "../models/courseModel";
 import slugify from "slugify";
 import path from "path";
 import sharp from "sharp";
-import { ICourse } from "../models/courseModel";
+import { ICourse } from "../interfaces/ICourse";
 
 type Filters = {
   category?: string;
@@ -101,8 +101,8 @@ export const getCourseByIDHandler: RequestHandler = async (
   const course = await Course.findById(courseId);
 
   if (!course) {
-    console.log(`Course not found with ID: ${courseId}`);
     res.status(404).json({ message: "Course not found" });
+    return;
   }
 
   res.json(course);
@@ -192,10 +192,10 @@ export const deleteCourseHandler: RequestHandler = async (
     const deletedCourse = await Course.findByIdAndDelete(courseId);
 
     if (!deletedCourse) {
-      console.log(`Course not found with ID: ${courseId}`);
       res.status(404).json({
         message: "Course not found",
       });
+      return;
     }
 
     res.status(200).json({

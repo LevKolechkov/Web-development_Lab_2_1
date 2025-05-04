@@ -1,20 +1,6 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
-
-export interface ICourse extends Document {
-  _id: string;
-  title: string;
-  slug: string;
-  description: string;
-  price: string;
-  image: string;
-  category: string;
-  level: string;
-  published: boolean;
-  author: string;
-  createdAt: string;
-  tags: string[];
-}
+import { ICourse } from "../interfaces/ICourse";
 
 const courseSchema = new Schema<ICourse>({
   _id: { type: String, required: true, default: uuidv4() },
