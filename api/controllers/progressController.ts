@@ -139,3 +139,35 @@ export const countStudentsInCourse: RequestHandler = async (
     });
   }
 };
+
+export const cancelCourseProgressHandler: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { courseId } = req.params;
+    const { studentId } = req.body;
+
+    checkCourse(res, courseId);
+    checkStudent(res, studentId);
+
+    const progress = await Progress.findOneAndDelete({ studentId, courseId });
+
+    if (!progress) {
+      res.status(404).json({
+        message: "Progress not found for this student and course",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      message: "Course progress canceled successfully",
+    });
+  } catch (error) {
+    console.error("Error canceling course progress:", error);
+    res.status(500).json({
+      message: "Error canceling course progress",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+};

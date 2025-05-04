@@ -10,6 +10,7 @@ import upload from "../utils/upload";
 import { postTagHandler, putTagHandler } from "../controllers/tagController";
 import lessonsRouter from "./lessonsRoute";
 import {
+  cancelCourseProgressHandler,
   countStudentsInCourse,
   getProgressHandler,
   postProgressHandler,
@@ -31,6 +32,7 @@ router.use("/:courseId/lessons", lessonsRouter);
 router.get("/:courseId/progress", getProgressHandler);
 router.post("/:courseId/progress", postProgressHandler);
 router.patch("/:courseId/progress", updateProgressHandler);
+router.delete("/courseId/progress", cancelCourseProgressHandler);
 
 router.get("/:courseId/students/count", countStudentsInCourse);
 
