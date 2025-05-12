@@ -1,0 +1,47 @@
+{
+  "name": "lab_2_1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.ts",
+  "scripts": {
+    "start": "ts-node app.ts",
+    "dev": "nodemon app.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LevKolechkov/Web-development_Lab_2_1.git"
+  },
+  "keywords": [],
+  "author": "Lev Kolechkov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LevKolechkov/Web-development_Lab_2_1/issues"
+  },
+  "homepage": "https://github.com/LevKolechkov/Web-development_Lab_2_1#readme",
+  "dependencies": {
+    "bcrypt-ts": "^6.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.12.2",
+    "multer": "^1.4.5-lts.2",
+    "slugify": "^1.6.6",
+    "typescript": "^5.8.2",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.23.0",
+    "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/multer": "^1.4.12",
+    "@types/sharp": "^0.31.1",
+    "@typescript-eslint/eslint-plugin": "^8.28.0",
+    "@typescript-eslint/parser": "^8.28.0",
+    "eslint": "^9.23.0",
+    "globals": "^16.0.0",
+    "nodemon": "^3.1.9",
+    "sharp": "^0.34.1",
+    "ts-node": "^10.9.2",
+    "typescript-eslint": "^8.28.0"
+  }
+}
