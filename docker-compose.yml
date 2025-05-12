@@ -1,9 +1,27 @@
 services:
+  nginx:
+    image: nginx:alpine
+    restart: always
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+    networks:
+      - app-network
+
+  rabbitmq:
+    image: rabbitmq:4-management
+    restart: always
+    ports:
+      - 5672:5672
+      - 15672:15672
+    networks:
+      - app-network
   api:
     build: "./api"
     restart: always
     ports:
-      - "5555:5000"
+      - 5555:5000
     volumes:
       - /app/node_modules
       - ./api:/app
@@ -13,6 +31,7 @@ services:
       MONGO_PASSWORD: password
       MONGO_URL: "mongodb://root:example@mongo:27017/lab_1?authSource=admin"
       JWT_SECRET: "secret"
+      RABBITMQ_URL: "amqp://rabbitmq"
     networks:
       - app-network
 
