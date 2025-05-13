@@ -17,6 +17,9 @@ services:
       - 15672:15672
     networks:
       - app-network
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
   api:
     build: "./api"
     restart: always
@@ -32,6 +35,7 @@ services:
       MONGO_URL: "mongodb://root:example@mongo:27017/lab_1?authSource=admin"
       JWT_SECRET: "secret"
       RABBITMQ_URL: "amqp://rabbitmq"
+      EXCHANGE_NAME: "app-exchange"
     networks:
       - app-network
 
@@ -60,6 +64,22 @@ services:
       ME_CONFIG_BASICAUTH: false
     networks:
       - app-network
+  course-service:
+    build: ./course-service
+    ports:
+      - 3001:3001
+    environment:
+      RABBITMQ_URL: "amqp://rabbitmq"
+    depends_on:
+      - rabbitmq
+  user-service:
+    build: ./course-service
+    ports:
+      - 3002:3002
+    environment:
+      RABBITMQ_URL: "amqp://rabbitmq"
+    depends_on:
+      - rabbitmq
 volumes:
   mongo-data:
 

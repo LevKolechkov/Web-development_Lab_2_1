@@ -13,7 +13,11 @@ router.all("/users", async (req: Request, res: Response) => {
   };
 
   try {
-    await sendToQueue("user-service", JSON.stringify(message));
+    await sendToQueue(
+      "user-service",
+      "user-service-routing",
+      JSON.stringify(message)
+    );
     console.log("Message sent to user-service");
     res.status(200).send("Message successfully sent to user-service");
   } catch (err) {
@@ -29,7 +33,11 @@ router.all("/courses", async (req: Request, res: Response) => {
   };
 
   try {
-    await sendToQueue("course-service", JSON.stringify(message));
+    await sendToQueue(
+      "course-service",
+      "course-service-routing",
+      JSON.stringify(message)
+    );
     console.log("Message sent to course-service");
     res.status(200).send("Message successfully sent to course-service");
   } catch (err) {
