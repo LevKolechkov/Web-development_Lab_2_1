@@ -1,6 +1,6 @@
 import amqp from "amqplib";
 
-const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://localhost";
+const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://rabbitmq:5672";
 const EXCHANGE_NAME = process.env.EXCHANGE_NAME || "app-exchange";
 
 export const sendToQueue = async (
@@ -19,7 +19,11 @@ export const sendToQueue = async (
 
     await channel.bindQueue(queue, EXCHANGE_NAME, routingKey);
 
-    channel.publish(EXCHANGE_NAME, routingKey, Buffer.from(message));
+    channel.publish(
+      EXCHANGE_NAME,
+      routingKey,
+      Buffer.from(JSON.stringify(message))
+    );
 
     console.log(`Sent message to ${queue}: ${message}`);
 

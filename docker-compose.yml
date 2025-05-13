@@ -74,11 +74,11 @@ services:
       - app-network
 
   user-service:
-    build: ./course-service
+    build: ./user-service
     ports:
       - 5557:5000
     environment:
-      RABBITMQ_URL: "amqp://rabbitmq"
+      RABBITMQ_URL: "amqp://rabbitmq:5672"
       PORT: 5000
       MONGO_USERNAME: user
       MONGO_PASSWORD: password
