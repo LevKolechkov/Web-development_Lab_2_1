@@ -1,23 +1,44 @@
 import amqp from "amqplib";
 
-const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://localhost";
+const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://rabbitmq:5672";
+const EXCHANGE_NAME = process.env.EXCHANGE_NAME || "app-exchange";
 
-export const sendToQueue = async (queue: string, message: string) => {
-  try {
-    const connection = await amqp.connect(RABBITMQ_URL);
-    const channel = await connection.createChannel();
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    await channel.assertQueue(queue, {
-      durable: true,
-    });
+export const startListeningRabbitMQ = async (
+  queue: string,
+  routingKey: string
+) => {
+  let retries = 10;
 
-    channel.sendToQueue(queue, Buffer.from(message), { persistent: true });
-    console.log(`Sent message to ${queue}: ${message}`);
+  while (retries > 0) {
+    try {
+      const connection = await amqp.connect(RABBITMQ_URL);
+      const channel = await connection.createChannel();
 
-    setTimeout(() => {
-      connection.close();
-    }, 500);
-  } catch (error) {
-    console.error("Error in sending to RabbitMQ:", error);
+      await channel.assertExchange(EXCHANGE_NAME, "direct", { durable: true });
+      await channel.assertQueue(queue, { durable: true });
+      await channel.bindQueue(queue, EXCHANGE_NAME, routingKey);
+
+      console.log(
+        `Waiting for messages from queue: "${queue}", routingKey: "${routingKey}"`
+      );
+
+      channel.consume(queue, (msg) => {
+        if (msg) {
+          const content = JSON.parse(msg.content.toString());
+          console.log(`Received:`, content);
+          channel.ack(msg);
+        }
+      });
+
+      return;
+    } catch (err) {
+      console.error(err);
+      retries--;
+      await wait(5000);
+    }
   }
+
+  console.error("Failed to connect to RabbitMQ after multiple attempts.");
 };

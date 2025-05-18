@@ -30,6 +30,8 @@ services:
       - ./api:/app
     networks:
       - app-network
+    depends_on:
+      - rabbitmq
 
   mongo:
     image: mongo
@@ -56,6 +58,8 @@ services:
       ME_CONFIG_BASICAUTH: false
     networks:
       - app-network
+    depends_on:
+      - mongo
   course-service:
     build: ./course-service
     ports:

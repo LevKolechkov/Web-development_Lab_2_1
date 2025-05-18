@@ -23,14 +23,18 @@
     "bcrypt-ts": "^6.0.0",
     "cors": "^2.8.5",
     "express": "^4.21.2",
+    "express-form-data": "^2.0.23",
+    "multer": "^1.4.5-lts.2",
     "typescript": "^5.8.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.23.0",
     "@types/amqplib": "^0.10.7",
     "@types/express": "^5.0.1",
+    "@types/express-form-data": "^2.0.5",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
+    "@types/multer": "^1.4.12",
     "eslint": "^9.23.0",
     "globals": "^16.0.0",
     "nodemon": "^3.1.9",
