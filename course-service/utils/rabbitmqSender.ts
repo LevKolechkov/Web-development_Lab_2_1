@@ -1,7 +1,7 @@
 import amqp from "amqplib";
 
 const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://rabbitmq:5672";
-const EXCHANGE_NAME = process.env.EXCHANGE_NAME || "response-exchange";
+const EXCHANGE_NAME = process.env.EXCHANGE_NAME || "app-exchange";
 
 export const sendToQueue = async (
   queue: string,

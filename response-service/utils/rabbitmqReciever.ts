@@ -1,5 +1,5 @@
 import amqp from "amqplib";
-import axios from "axios";
+import { ResponseLog } from "../models/responseModel";
 
 const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://rabbitmq:5672";
 const EXCHANGE_NAME = process.env.EXCHANGE_NAME || "app-exchange";
@@ -34,23 +34,15 @@ export const startListeningRabbitMQ = async (
         const content = JSON.parse(msg.content.toString());
         console.log(`Received message:`, content);
 
-        const { path, method, body } = content;
-        const normalizedPath = path.split("/").slice(2).join("/");
-
         try {
-          const url = `http://localhost:5000/${
-            normalizedPath ? normalizedPath : ""
-          }`;
-          const response = await axios({
-            method,
-            url,
-            data: body,
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
+          await ResponseLog.findOneAndUpdate(
+            { requestId: content.requestId },
+            content,
+            { upsert: true, new: true }
+          );
 
-          console.log("Forwarded to:", url, "→", response.status);
+          console.log("Saved response:", content.requestId);
+          channel.ack(msg);
         } catch (err) {
           console.error(err);
         }

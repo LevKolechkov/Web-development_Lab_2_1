@@ -4,6 +4,8 @@ import slugify from "slugify";
 import path from "path";
 import sharp from "sharp";
 import { ICourse } from "../interfaces/ICourse";
+import { sendToQueue } from "../utils/rabbitmqSender";
+import { v4 as uuidv4 } from "uuid";
 
 export const getCoursesHandler: RequestHandler = async (
   req: Request,
@@ -22,9 +24,49 @@ export const getCoursesHandler: RequestHandler = async (
       .limit(pageSize);
 
     console.log(`Successfully fetched ${courses.length} courses`);
-    res.json(courses);
+
+    const responsePayload = {
+      requestId: req.headers["x-request-id"] || uuidv4(),
+      path: req.originalUrl,
+      method: req.method,
+      status: 200,
+      result: courses,
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(responsePayload)
+    );
+    console.log("Successfully send response to response-service");
+
+    res.status(202).json({
+      message: "Response is being processed",
+      requestId: responsePayload.requestId,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching courses", error });
+    console.error("Caught error in getCoursesHandler:", error);
+    const errorPayload = {
+      requestId: req.headers["x-request-id"] || null,
+      path: req.originalUrl,
+      method: req.method,
+      status: 500,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unknown error in fetching courses",
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(errorPayload)
+    );
+
+    res.status(500).json({
+      message: "Error occurred while fetching courses",
+      requestId: errorPayload.requestId,
+    });
   }
 };
 
@@ -32,16 +74,78 @@ export const getCourseByIDHandler: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
-  const { courseId } = req.params;
+  const requestId = req.headers["x-request-id"] || uuidv4();
 
-  const course = await Course.findById(courseId);
+  try {
+    const { courseId } = req.params;
 
-  if (!course) {
-    res.status(404).json({ message: "Course not found" });
-    return;
+    const course = await Course.findById(courseId);
+
+    if (!course) {
+      const notFoundPayload = {
+        requestId,
+        path: req.originalUrl,
+        method: req.method,
+        status: 404,
+        error: "Course not found",
+      };
+
+      await sendToQueue(
+        "response-service",
+        "response-service-routing",
+        JSON.stringify(notFoundPayload)
+      );
+
+      res.status(404).json({
+        message: "Course not found",
+        requestId,
+      });
+      return;
+    }
+
+    const successPayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 200,
+      result: course,
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(successPayload)
+    );
+
+    res.status(202).json({
+      message: "Response is being processed",
+      requestId,
+    });
+  } catch (error) {
+    console.error("Error in getCourseByIDHandler:", error);
+
+    const errorPayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 500,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unknown error in fetching course",
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(errorPayload)
+    );
+
+    res.status(500).json({
+      message: "Internal server error",
+      requestId,
+    });
   }
-
-  res.json(course);
 };
 
 export const postCourseHandler: RequestHandler = async (

@@ -36,7 +36,6 @@ export const startListeningRabbitMQ = async (
 
         const { path, method, body } = content;
         const normalizedPath = path.split("/").slice(2).join("/");
-        console.log(`Path is ${normalizedPath}`);
 
         try {
           const url = `http://localhost:5000/${

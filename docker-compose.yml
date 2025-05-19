@@ -95,6 +95,21 @@ services:
       - rabbitmq
     networks:
       - app-network
+
+  status-service:
+    restart: always
+    build: ./response-service
+    ports:
+      - 5558:5000
+    environment:
+      RABBITMQ_URL: "amqp://rabbitmq:5672"
+      PORT: 5000
+      MONGO_USERNAME: user
+      MONGO_PASSWORD: password
+      MONGO_URL: "mongodb://root:example@mongo:27017/lab_1?authSource=admin"
+      EXCHANGE_NAME: "app-exchange"
+    networks:
+      - app-network
 volumes:
   mongo-data:
 
