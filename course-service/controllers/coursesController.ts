@@ -152,6 +152,8 @@ export const postCourseHandler: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
+  const requestId = req.headers["x-request-id"] || uuidv4();
+
   try {
     const { ...courseData } = req.body;
 
@@ -164,9 +166,25 @@ export const postCourseHandler: RequestHandler = async (
       .toBuffer();
 
     if (missingField) {
+      const errorPayload = {
+        requestId,
+        path: req.originalUrl,
+        method: req.method,
+        status: 400,
+        error: `${missingField} is missing`,
+      };
+
+      await sendToQueue(
+        "response-service",
+        "response-service-routing",
+        JSON.stringify(errorPayload)
+      );
+
       res.status(400).json({
         message: `${missingField} is missing`,
+        requestId,
       });
+      return;
     }
 
     const imagePath = req.file
@@ -205,19 +223,44 @@ export const postCourseHandler: RequestHandler = async (
 
     const savedCourse = await newCourse.save();
 
-    const courseResponse = {
-      title: savedCourse.title,
-      author: savedCourse.author,
-      status: "saved",
+    const responsePayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 201,
+      result: savedCourse,
     };
 
-    res.status(201).json(courseResponse);
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(responsePayload)
+    );
+
+    res.status(202).json({
+      message: "Course is being processed",
+      requestId,
+    });
   } catch (error) {
     console.error("Error creating course:", error);
 
+    const errorPayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 500,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(errorPayload)
+    );
+
     res.status(500).json({
       message: "Error creating course",
-      error: error instanceof Error ? error.message : "Unknown error",
+      requestId,
     });
   }
 };
@@ -226,27 +269,73 @@ export const deleteCourseHandler: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
+  const requestId = req.headers["x-request-id"] || uuidv4();
+
   try {
     const { courseId } = req.params;
 
     const deletedCourse = await Course.findByIdAndDelete(courseId);
 
     if (!deletedCourse) {
+      const errorPayload = {
+        requestId,
+        path: req.originalUrl,
+        method: req.method,
+        status: 404,
+        error: "Course not found",
+      };
+
+      await sendToQueue(
+        "response-service",
+        "response-service-routing",
+        JSON.stringify(errorPayload)
+      );
+
       res.status(404).json({
         message: "Course not found",
+        requestId,
       });
       return;
     }
 
-    res.status(200).json({
-      message: "Course deleted successfully",
+    const responsePayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 200,
+      result: deletedCourse,
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(responsePayload)
+    );
+
+    res.status(202).json({
+      message: "Course deletion is being processed",
+      requestId,
     });
   } catch (error) {
-    console.error("Error creating course:", error);
+    console.error("Error deleting course:", error);
+
+    const errorPayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 500,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(errorPayload)
+    );
 
     res.status(500).json({
-      message: "Error creating course",
-      error: error instanceof Error ? error.message : "Unknown error",
+      message: "Error deleting course",
+      requestId,
     });
   }
 };
@@ -255,6 +344,8 @@ export const updateCourseHandler: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
+  const requestId = req.headers["x-request-id"] || uuidv4();
+
   try {
     const { courseId } = req.params;
     const updatedData: Partial<ICourse> = req.body;
@@ -262,20 +353,68 @@ export const updateCourseHandler: RequestHandler = async (
     const course = await Course.findById(courseId);
 
     if (!course) {
-      res.status(404).json({ message: "Course not found" });
+      const notFoundPayload = {
+        requestId,
+        path: req.originalUrl,
+        method: req.method,
+        status: 404,
+        error: "Course not found",
+      };
+
+      await sendToQueue(
+        "response-service",
+        "response-service-routing",
+        JSON.stringify(notFoundPayload)
+      );
+
+      res.status(404).json({
+        message: "Course not found",
+        requestId,
+      });
       return;
     }
 
     course.set(updatedData);
+    const updatedCourse = await course.save();
 
-    await course.save();
+    const responsePayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 200,
+      result: updatedCourse,
+    };
 
-    res.status(200).json(course);
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(responsePayload)
+    );
+
+    res.status(202).json({
+      message: "Course update is being processed",
+      requestId,
+    });
   } catch (error) {
     console.error("Error updating course:", error);
+
+    const errorPayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 500,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(errorPayload)
+    );
+
     res.status(500).json({
       message: "Error updating course",
-      error: error instanceof Error ? error.message : "Unknown error",
+      requestId,
     });
   }
 };
