@@ -19,11 +19,7 @@ export const sendToQueue = async (
 
     await channel.bindQueue(queue, EXCHANGE_NAME, routingKey);
 
-    channel.publish(
-      EXCHANGE_NAME,
-      routingKey,
-      Buffer.from(JSON.stringify(message))
-    );
+    channel.publish(EXCHANGE_NAME, routingKey, Buffer.from(message));
 
     console.log(`Sent message to ${queue}: ${message}`);
 

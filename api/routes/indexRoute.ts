@@ -10,7 +10,7 @@ const upload = multer({ storage });
 
 router.get("/", rootRouter);
 router.all(
-  "/users",
+  "/users*",
   upload.single("image"),
   async (req: Request, res: Response) => {
     const message = {
@@ -34,7 +34,7 @@ router.all(
   }
 );
 router.all(
-  "/courses",
+  "/courses*",
   upload.single("image"),
   async (req: Request, res: Response) => {
     const message = {

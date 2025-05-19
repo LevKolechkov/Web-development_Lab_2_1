@@ -61,6 +61,7 @@ services:
     depends_on:
       - mongo
   course-service:
+    restart: always
     build: ./course-service
     ports:
       - 5556:5000
@@ -78,6 +79,7 @@ services:
       - app-network
 
   user-service:
+    restart: always
     build: ./user-service
     ports:
       - 5557:5000
