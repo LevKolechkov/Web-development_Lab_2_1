@@ -1,15 +1,35 @@
 import { Request, Response, RequestHandler } from "express";
 import { Lesson } from "../models/lessonModel";
+import { sendToQueue } from "../utils/rabbitmqSender";
+import { v4 as uuidv4 } from "uuid";
 
 export const postLessonHandler: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
+  const requestId = req.headers["x-request-id"] || uuidv4();
+
   try {
     const { title, content, videoUrl, order, course } = req.body;
 
     if (!title || !course) {
-      res.status(400).json({ message: "Title and course are required" });
+      const badRequestPayload = {
+        requestId,
+        path: req.originalUrl,
+        method: req.method,
+        status: 400,
+        error: "Title and course are required",
+      };
+
+      await sendToQueue(
+        "response-service",
+        "response-service-routing",
+        JSON.stringify(badRequestPayload)
+      );
+
+      res
+        .status(400)
+        .json({ message: "Title and course are required", requestId });
       return;
     }
 
@@ -22,13 +42,45 @@ export const postLessonHandler: RequestHandler = async (
     });
 
     const savedLesson = await newLesson.save();
-    res.status(201).json(savedLesson);
+
+    const responsePayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 201,
+      result: savedLesson,
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(responsePayload)
+    );
+
+    res.status(202).json({
+      message: "Response is being processed",
+      requestId,
+    });
   } catch (error) {
     console.error("Error creating lesson:", error);
 
+    const errorPayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 500,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(errorPayload)
+    );
+
     res.status(500).json({
       message: "Error creating lesson",
-      error: error instanceof Error ? error.message : "Unknown error",
+      requestId,
     });
   }
 };
@@ -37,20 +89,68 @@ export const getLessonsHandler: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
+  const requestId = req.headers["x-request-id"] || uuidv4();
+
   try {
     const lessons = await Lesson.find().populate("course");
 
-    if (!lessons) {
-      res.status(404).json({ message: "Lesson not found" });
+    if (!lessons || lessons.length === 0) {
+      const notFoundPayload = {
+        requestId,
+        path: req.originalUrl,
+        method: req.method,
+        status: 404,
+        error: "Lessons not found",
+      };
+
+      await sendToQueue(
+        "response-service",
+        "response-service-routing",
+        JSON.stringify(notFoundPayload)
+      );
+
+      res.status(404).json({ message: "Lessons not found", requestId });
       return;
     }
 
-    res.status(200).json(lessons);
+    const responsePayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 200,
+      result: lessons,
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(responsePayload)
+    );
+
+    res.status(202).json({
+      message: "Response is being processed",
+      requestId,
+    });
   } catch (error) {
     console.error("Error fetching lessons:", error);
+
+    const errorPayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 500,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(errorPayload)
+    );
+
     res.status(500).json({
       message: "Error fetching lessons",
-      error: error instanceof Error ? error.message : "Unknown error",
+      requestId,
     });
   }
 };
@@ -59,21 +159,69 @@ export const getLessonHandler: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
+  const requestId = req.headers["x-request-id"] || uuidv4();
+
   try {
     const { lessonId } = req.params;
     const lesson = await Lesson.findById(lessonId).populate("course");
 
     if (!lesson) {
-      res.status(404).json({ message: "Lesson not found" });
+      const notFoundPayload = {
+        requestId,
+        path: req.originalUrl,
+        method: req.method,
+        status: 404,
+        error: "Lesson not found",
+      };
+
+      await sendToQueue(
+        "response-service",
+        "response-service-routing",
+        JSON.stringify(notFoundPayload)
+      );
+
+      res.status(404).json({ message: "Lesson not found", requestId });
       return;
     }
 
-    res.status(200).json(lesson);
+    const responsePayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 200,
+      result: lesson,
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(responsePayload)
+    );
+
+    res.status(202).json({
+      message: "Response is being processed",
+      requestId,
+    });
   } catch (error) {
     console.error("Error fetching lesson:", error);
+
+    const errorPayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 500,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(errorPayload)
+    );
+
     res.status(500).json({
       message: "Error fetching lesson",
-      error: error instanceof Error ? error.message : "Unknown error",
+      requestId,
     });
   }
 };
@@ -82,6 +230,8 @@ export const updateLessonHandler: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
+  const requestId = req.headers["x-request-id"] || uuidv4();
+
   try {
     const { lessonId } = req.params;
     const { title, content, videoUrl, course, order } = req.body;
@@ -89,7 +239,21 @@ export const updateLessonHandler: RequestHandler = async (
     const lesson = await Lesson.findById(lessonId);
 
     if (!lesson) {
-      res.status(404).json({ message: "Lesson not found" });
+      const notFoundPayload = {
+        requestId,
+        path: req.originalUrl,
+        method: req.method,
+        status: 404,
+        error: "Lesson not found",
+      };
+
+      await sendToQueue(
+        "response-service",
+        "response-service-routing",
+        JSON.stringify(notFoundPayload)
+      );
+
+      res.status(404).json({ message: "Lesson not found", requestId });
       return;
     }
 
@@ -101,12 +265,44 @@ export const updateLessonHandler: RequestHandler = async (
 
     const updatedLesson = await lesson.save();
 
-    res.status(200).json(updatedLesson);
+    const responsePayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 200,
+      result: updatedLesson,
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(responsePayload)
+    );
+
+    res.status(202).json({
+      message: "Response is being processed",
+      requestId,
+    });
   } catch (error) {
     console.error("Error updating lesson:", error);
+
+    const errorPayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 500,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(errorPayload)
+    );
+
     res.status(500).json({
       message: "Error updating lesson",
-      error: error instanceof Error ? error.message : "Unknown error",
+      requestId,
     });
   }
 };
@@ -115,22 +311,70 @@ export const deleteLessonHandler: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
+  const requestId = req.headers["x-request-id"] || uuidv4();
+
   try {
     const { lessonId } = req.params;
 
     const lesson = await Lesson.findByIdAndDelete(lessonId);
 
     if (!lesson) {
-      res.status(404).json({ message: "Lesson not found" });
+      const notFoundPayload = {
+        requestId,
+        path: req.originalUrl,
+        method: req.method,
+        status: 404,
+        error: "Lesson not found",
+      };
+
+      await sendToQueue(
+        "response-service",
+        "response-service-routing",
+        JSON.stringify(notFoundPayload)
+      );
+
+      res.status(404).json({ message: "Lesson not found", requestId });
       return;
     }
 
-    res.status(200).json({ message: "Lesson deleted successfully" });
+    const responsePayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 200,
+      result: { message: "Lesson deleted successfully" },
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(responsePayload)
+    );
+
+    res.status(202).json({
+      message: "Response is being processed",
+      requestId,
+    });
   } catch (error) {
     console.error("Error deleting lesson:", error);
+
+    const errorPayload = {
+      requestId,
+      path: req.originalUrl,
+      method: req.method,
+      status: 500,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+
+    await sendToQueue(
+      "response-service",
+      "response-service-routing",
+      JSON.stringify(errorPayload)
+    );
+
     res.status(500).json({
       message: "Error deleting lesson",
-      error: error instanceof Error ? error.message : "Unknown error",
+      requestId,
     });
   }
 };
